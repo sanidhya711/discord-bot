@@ -46,42 +46,44 @@ client.on("message",message => {
             });
     
         }else{
-            async function hmm(){
-                message.channel.startTyping();
-                var browser = await puppeteer.launch({headless:true,args: ['--no-sandbox','--disable-setuid-sandbox',],});
-                var page = await browser.newPage();
-                await page.goto(message.content);
-                await page.waitForSelector(".QualityToggle button",{
-                    visible:true,
-                });
-                await page.click(".QualityToggle button:last-child");
-                await page.waitForSelector("video",{
-                    visible:true,
-                });
-                var data = await page.evaluate(()=>{
-                    src = document.querySelector("video").getElementsByTagName("source")[0].src;
-                    return src;
-                });
-                await browser.close();
-                fetch(apiEndpoint+data,{
-                    method: "POST",
-                })
-                .then((res) => res.json())
-                .then((result) => {
-                    result.docs.forEach(element => {
-                        console.log( element);
-                            resultsFound = true;
-                            message.channel.send(element.title_english+"           similarity: "+ Math.round((element.similarity*100)));
-                            var anilist_id = element.anilist_id;
-                            var filename = element.filename;
-                            var at = element.at;
-                            var tokenthumb = element.tokenthumb;
-                            message.channel.send(`https://trace.moe/thumbnail.php?anilist_id=${anilist_id}&file=${encodeURIComponent(filename)}&t=${at}&token=${tokenthumb}`);
+            if(message.content.includes("https://tenor.com")){
+                async function hmm(){
+                    message.channel.startTyping();
+                    var browser = await puppeteer.launch({headless:true,args: ['--no-sandbox','--disable-setuid-sandbox',],});
+                    var page = await browser.newPage();
+                    await page.goto(message.content);
+                    await page.waitForSelector(".QualityToggle button",{
+                        visible:true,
                     });
-                    message.channel.stopTyping();
-                });
+                    await page.click(".QualityToggle button:last-child");
+                    await page.waitForSelector("video",{
+                        visible:true,
+                    });
+                    var data = await page.evaluate(()=>{
+                        src = document.querySelector("video").getElementsByTagName("source")[0].src;
+                        return src;
+                    });
+                    await browser.close();
+                    fetch(apiEndpoint+data,{
+                        method: "POST",
+                    })
+                    .then((res) => res.json())
+                    .then((result) => {
+                        result.docs.forEach(element => {
+                            console.log( element);
+                                resultsFound = true;
+                                message.channel.send(element.title_english+"           similarity: "+ Math.round((element.similarity*100)));
+                                var anilist_id = element.anilist_id;
+                                var filename = element.filename;
+                                var at = element.at;
+                                var tokenthumb = element.tokenthumb;
+                                message.channel.send(`https://trace.moe/thumbnail.php?anilist_id=${anilist_id}&file=${encodeURIComponent(filename)}&t=${at}&token=${tokenthumb}`);
+                        });
+                        message.channel.stopTyping();
+                    });
+                }
+                hmm();
             }
-            hmm();
         }
     }
 });
