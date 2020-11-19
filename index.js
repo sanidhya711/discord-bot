@@ -48,7 +48,7 @@ client.on("message",message => {
         }else{
             async function hmm(){
                 message.channel.startTyping();
-                var browser = await puppeteer.launch({headless:true});
+                var browser = await puppeteer.launch({headless:true,args: ['--no-sandbox','--disable-setuid-sandbox',],});
                 var page = await browser.newPage();
                 await page.goto(message.content);
                 await page.waitForSelector(".QualityToggle button",{
